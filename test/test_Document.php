@@ -5,13 +5,27 @@ require_once 'Swift/Document.php';
 
 function testSwift_Document()
 {
-	$swiftdoc = new Swift_Document(require('files/config1d.php'));
-	$swiftdoc->loadHTML('files/input1.html');
-	$swiftdoc->process();
-	$output = $swiftdoc->saveDom();
+	foreach (glob("files/config*.php") as $filename) {
+		
+		$code = substr($filename,12,-4);
+		$num = substr($filename,12,-5);
+		
+		$swiftdoc = new Swift_Document(require('files/config'.$code.'.php'));
+		$swiftdoc->loadHTML('files/input'.$num.'.html');
+		$swiftdoc->process();
+		$output = $swiftdoc->saveDom();
+		$output->formatOutput = true;
+		$outputstring = $output->saveHTML();
+		$expectedoutputstring = file_get_contents('files/output'.$code.'.html');
 	
-	$passed = assertTrue($minExpected == $minOutput, 'Minify_Javascript');
-
+		$passed = assertTrue($expectedoutputstring == $outputstring, 'Swift_Document - example '.$code);
+	
+		if(!$passed) {
+			echo "Actually output saved to /tmp/output".$code.".html\n";
+			file_put_contents('/tmp/output'.$code.'.html',$outputstring);
+		}
+	
+	}
 }
 
 testSwift_Document();
