@@ -34,7 +34,10 @@ class Swift_Document {
 	public function process(){
 		
 		$this->loadDependencies();
-				
+		
+		$this->serveJSinline();
+		$this->serveCSSinline();
+		
 		$this->combineJS();
 		$this->combineCSS();
 		
@@ -46,6 +49,14 @@ class Swift_Document {
 	
 	private function combineCSS(){
 		$this->combineTags('link','href','rel','stylesheet');
+	}
+	
+	private function serveJSinline(){
+		$this->serveInline('script','src');
+	}
+	
+	private function serveCSSinline(){
+		$this->serveInline('link','href','rel','stylesheet');
 	}
 	
 	private function loadDependencies(){
@@ -69,8 +80,6 @@ class Swift_Document {
 								
 				$target_node->parentNode->insertBefore($new_node,$target_node);
 			}
-			
-			
 			
 		}
 	}
@@ -153,9 +162,53 @@ class Swift_Document {
 			$rm->parentNode->removeChild($rm); 
 		}
 		
-		
 	}
 	
+	
+	# Pulls files in files from outside
+	
+	private function serveInline($tagname, $attributename, $filterattribute=false, $filtervalue=false){
+		
+		$targettags = $this->_domdocument->getElementsByTagName($tagname);
+		
+		$combine_node = false;
+		
+		$removeelements = array();
+		
+		foreach($targettags AS $target_node){
+			
+			$src = (string)$target_node->getAttribute($attributename);
+			
+			# skip targets that are already inline or ones without swift modules source files
+			if(empty($src) || strpos($src,'swift://') !== 0 || substr($src,-7) !== '#inline') break; 
+			
+			if(!empty($filterattribute)) {
+				if($target_node->getAttribute($filterattribute) != $filtervalue) break;
+			}
+			
+			$modulename = substr(substr($src,8),0,-7);
+			
+			$content = file_get_contents($this->_config['modules'][$modulename]['path']);
+			
+			if($tagname == 'script'){
+				# JavaScript
+				$target_node->appendChild($this->_domdocument->createTextNode($content));
+				$target_node->removeAttribute($attributename);
+				
+			} elseif($tagname == 'link') {
+				# CSS
+				
+				$newtag = $this->_domdocument->createElement('style',$content);
+				
+				$target_node->parentNode->insertBefore($newtag, $target_node);
+				
+				$newtag->setAttribute('type','text/css');
+				
+				$target_node->parentNode->removeChild($target_node);
+				
+			}
+		}
+	}
 }
 
 class Swift_Document_Exception extends Exception {}
