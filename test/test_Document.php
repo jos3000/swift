@@ -21,7 +21,7 @@ function testSwift_Document()
 		$passed = assertTrue($expectedoutputstring == $outputstring, 'Swift_Document - example '.$code);
 	
 		if(!$passed) {
-			echo "Actually output saved to /tmp/output".$code.".html\n";
+			echo "Actual output saved to /tmp/output".$code.".html\n";
 			file_put_contents('/tmp/output'.$code.'.html',$outputstring);
 		}
 	
