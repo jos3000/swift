@@ -2,6 +2,8 @@
 
 set_include_path(dirname(__FILE__) . '/../library' . PATH_SEPARATOR . get_include_path());
 
+if(file_exists('local_test_config.php')) require('local_test_config.php');
+
 error_reporting(E_ALL | E_STRICT);
 ini_set('display_errors', 1);
 

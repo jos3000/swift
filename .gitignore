@@ -4,3 +4,4 @@
 .settings
 /test/cache/*.css
 /test/cache/*.js
+/test/local_test_config.php
