@@ -62,17 +62,33 @@ class Swift_Server {
 		if(!empty($this->_version)){
 			$min_serveOptions['maxAge'] = 31536000;
 		}
-		
+
 		$min_serveOptions['swift']['files'] = array();
-		
+
 		foreach($this->_current_modules AS $module){
-			if(!empty($this->_config['debug_use_alt_resources']) && !empty($this=>_config['modules'][$module]['debug_path'])){
-				$min_serveOptions['swift']['files'][] = $this=>_config['modules'][$module]['debug_path'];
+			if(!empty($this->_config['debug_use_alt_resources']) && !empty($this->_config['modules'][$module]['debug_path'])){
+				$min_serveOptions['swift']['files'][] = $this->_config['modules'][$module]['debug_path'];
 			} else {
 				$min_serveOptions['swift']['files'][] = $this->_config['modules'][$module]['path'];
 			}
 		}
-		
+
+		if(!empty($this->_config['use_include_path'])){
+			// search in include path
+			
+			$IncludePath=explode(PATH_SEPARATOR,get_include_path());
+			
+			foreach($min_serveOptions['swift']['files'] AS $k => $file_name){
+				foreach($IncludePath as $prefix){
+					if(substr($prefix,-1)==DIRECTORY_SEPARATOR) $prefix=substr($prefix,0,-1);
+					$try_path=sprintf("%s%s%s", $prefix, DIRECTORY_SEPARATOR, $path_to_translate);
+					if(file_exists($try_path)){
+						$min_serveOptions['swift']['files'][$k] = $try_path;
+					}
+				}
+			}	
+		}
+
 		Minify::serve('Swift', $min_serveOptions);
 
 
@@ -89,11 +105,11 @@ class Minify_Controller_Swift extends Minify_Controller_Base {
 		// strip controller options
 		$swift = $options['swift'];
 		unset($options['swift']);
-		
+
 		$sources = array();
-		
+
 		$files = $swift['files'];
-		
+
 		foreach ($files as $file) {
 			if (0 === strpos($file, '//')) {
 				$file = $_SERVER['DOCUMENT_ROOT'] . substr($file, 1);
