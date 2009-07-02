@@ -30,7 +30,8 @@ class Swift_Server {
 	}
 
 	public function serve(){
-		// Adapted from index.php in the Minify distribution
+		// Adapted from index.php and config.php in the Minify distribution
+		$min_serveOptions = array();
 
 		$min_uploaderHoursBehind = isset($this->_config['min_uploaderHoursBehind'])?$this->_config['min_uploaderHoursBehind']:0;
 		Minify::$uploaderHoursBehind = $min_uploaderHoursBehind;
@@ -39,14 +40,15 @@ class Swift_Server {
 		$min_cachePath = $this->_config['cache_dir'];
 		Minify::setCache($min_cachePath, $min_cacheFileLocking);
 
-		$min_symlinks = isset($this->_config['min_cacheFileLocking'])?$this->_config['min_cacheFileLocking']:true;
+		$min_symlinks = isset($this->_config['min_symlinks'])?$this->_config['min_symlinks']:array();
+		foreach ($min_symlinks as $link => $target) {
+		    $link = str_replace('//', realpath($_SERVER['DOCUMENT_ROOT']), $link);
+		    $link = strtr($link, '/', DIRECTORY_SEPARATOR);
+		    $min_serveOptions['minifierOptions']['text/css']['symlinks'][$link] = realpath($target);
+		}
 		$min_serveOptions['minifierOptions']['text/css']['symlinks'] = $min_symlinks;
 
 		/*
-		 if ($min_allowDebugFlag && isset($_GET['debug'])) {
-			$min_serveOptions['debug'] = true;
-			}
-
 			if ($min_errorLogger) {
 			require_once 'Minify/Logger.php';
 			if (true === $min_errorLogger) {
@@ -56,11 +58,14 @@ class Swift_Server {
 			Minify_Logger::setLogger($min_errorLogger);
 			}
 			}
-			*/
+		*/
 
 		// check for URI versioning
 		if(!empty($this->_version)){
 			$min_serveOptions['maxAge'] = 31536000;
+		} else {
+			# don't cache if we are not using a version number
+			$min_serveOptions['maxAge'] = 0;
 		}
 
 		$min_serveOptions['swift']['files'] = array();
@@ -72,23 +77,23 @@ class Swift_Server {
 				$min_serveOptions['swift']['files'][] = $this->_config['modules'][$module]['path'];
 			}
 		}
-
-		if(!empty($this->_config['use_include_path'])){
-			// search in include path
-			
-			$IncludePath=explode(PATH_SEPARATOR,get_include_path());
-			
-			foreach($min_serveOptions['swift']['files'] AS $k => $file_name){
-				foreach($IncludePath as $prefix){
-					if(substr($prefix,-1)==DIRECTORY_SEPARATOR) $prefix=substr($prefix,0,-1);
-					$try_path=sprintf("%s%s%s", $prefix, DIRECTORY_SEPARATOR, $path_to_translate);
-					if(file_exists($try_path)){
-						$min_serveOptions['swift']['files'][$k] = $try_path;
-					}
-				}
-			}	
+		
+		
+		# check what format we're working on by looking at the extension on the first file
+		# if we are in debug mode for the current type of files use Minify's debug mode
+		
+		if(
+			(
+				!empty($this->_config['debug_minify_js_off']) &&
+				pathinfo($min_serveOptions['swift']['files'][0], PATHINFO_EXTENSION) == 'js'
+			) || (
+				!empty($this->_config['debug_minify_css_off']) &&
+				pathinfo($min_serveOptions['swift']['files'][0], PATHINFO_EXTENSION) == 'css'
+			)
+		) {
+			$min_serveOptions['debug'] = true;
 		}
-
+		
 		Minify::serve('Swift', $min_serveOptions);
 
 
