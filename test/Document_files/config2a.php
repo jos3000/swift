@@ -6,10 +6,10 @@ return array(
 	'swift_url' => 'http://www.example.com/swift/',
 	'modules' => array(
 		'script1' => array(
-			'path' => 'files/scripts/example-script1.js'
+			'path' => 'Document_files/scripts/example-script1.js'
 		),
 		'styles1' => array(
-			'path' => 'files/styles/example-styles1.css'
+			'path' => 'Document_files/styles/example-styles1.css'
 		)
 	)
 );

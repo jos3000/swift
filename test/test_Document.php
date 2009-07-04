@@ -5,18 +5,18 @@ require_once 'Swift/Document.php';
 
 function testSwift_Document()
 {
-	foreach (glob("files/config*.php") as $filename) {
+	foreach (glob("Document_files/config*.php") as $filename) {
 		
-		$code = substr($filename,12,-4);
-		$num = substr($filename,12,-5);
+		$code = substr($filename,21,-4);
+		$num = substr($filename,21,-5);
 		
-		$swiftdoc = new Swift_Document(require('files/config'.$code.'.php'));
-		$swiftdoc->loadHTML('files/input'.$num.'.html');
+		$swiftdoc = new Swift_Document(require('Document_files/config'.$code.'.php'));
+		$swiftdoc->loadHTML('Document_files/input'.$num.'.html');
 		$swiftdoc->process();
 		$output = $swiftdoc->saveDom();
 		$output->formatOutput = true;
 		$outputstring = $output->saveHTML();
-		$expectedoutputstring = file_get_contents('files/output'.$code.'.html');
+		$expectedoutputstring = file_get_contents('Document_files/output'.$code.'.html');
 	
 		$passed = assertTrue($expectedoutputstring == $outputstring, 'Swift_Document - example '.$code);
 	

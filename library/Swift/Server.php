@@ -9,9 +9,7 @@ class Swift_Server {
 	private $_current_modules;
 
 	public function __construct($_config){
-
 		$this->_config = $_config;
-
 	}
 
 	public function setCode($code){
@@ -19,6 +17,8 @@ class Swift_Server {
 
 		$version = array_shift($bits);
 		$this->setVersion($version);
+		$this->setModules($bits);
+		
 	}
 
 	public function setModules($modules){
@@ -69,7 +69,7 @@ class Swift_Server {
 		}
 
 		$min_serveOptions['swift']['files'] = array();
-
+		
 		foreach($this->_current_modules AS $module){
 			if(!empty($this->_config['debug_use_alt_resources']) && !empty($this->_config['modules'][$module]['debug_path'])){
 				$min_serveOptions['swift']['files'][] = $this->_config['modules'][$module]['debug_path'];
@@ -107,6 +107,7 @@ require_once 'Minify/Controller/Base.php';
 class Minify_Controller_Swift extends Minify_Controller_Base {
 
 	public function setupSources($options) {
+
 		// strip controller options
 		$swift = $options['swift'];
 		unset($options['swift']);
@@ -122,7 +123,7 @@ class Minify_Controller_Swift extends Minify_Controller_Base {
 			$realPath = realpath($file);
 			if (is_file($realPath)) {
 				$sources[] = new Minify_Source(array(
-                    'filepath' => $realPath
+					'filepath' => $realPath
 				));
 			} else {
 				$this->log("The path \"{$file}\" could not be found (or was not a file)");
