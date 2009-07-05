@@ -2,11 +2,11 @@
 
 return array(
 	'modules' => array(
-		'test' => array(
-			'path' => '../Document_files/styles/example-styles1.css'
+		'script1' => array(
+			'path' => '../Server_files/javascript/example-script1.js'
 		),
-		'test2' => array(
-			'path' => '../Document_files/styles/example-styles1.css'
+		'script2' => array(
+			'path' => '../Server_files/javascript/example-script2.js'
 		)
 	)
 );
