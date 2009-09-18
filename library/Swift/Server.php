@@ -48,17 +48,17 @@ class Swift_Server {
 		}
 		$min_serveOptions['minifierOptions']['text/css']['symlinks'] = $min_symlinks;
 
-		/*
-			if ($min_errorLogger) {
+		
+		if (isset($this->_config['debug_minify_logger'])) {
 			require_once 'Minify/Logger.php';
-			if (true === $min_errorLogger) {
-			require_once 'FirePHP.php';
-			Minify_Logger::setLogger(FirePHP::getInstance(true));
+			if (true === $this->_config['debug_minify_logger']) {
+				require_once 'FirePHP.php';
+				Minify_Logger::setLogger(FirePHP::getInstance(true));
 			} else {
-			Minify_Logger::setLogger($min_errorLogger);
+				Minify_Logger::setLogger($this->_config['debug_minify_logger']);
 			}
-			}
-		*/
+		}
+		
 
 		// check for URI versioning
 		if(!empty($this->_version)){
