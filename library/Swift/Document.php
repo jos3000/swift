@@ -80,7 +80,7 @@ class Swift_Document {
 			
 			$src = (string)$target_node->getAttribute('src');
 			# skip inline targets or ones without swift modules source files
-			if(empty($src) || strpos($src,'swift://') !== 0) break; 
+			if(empty($src) || strpos($src,'swift://') !== 0) continue; 
 			
 			$modulename = substr($src,8);
 			
@@ -109,7 +109,7 @@ class Swift_Document {
 			foreach($this->_config['modules'][$modulename]['requires'] AS $req){
 				
 				# don't require a library more than once - since we process in order we will already have 
-				if(in_array($req,$this->_used_libraries)) break;
+				if(in_array($req,$this->_used_libraries)) continue;
 				
 				$sub_dependencies = $this->getDependencyNames($req);
 				foreach($sub_dependencies AS $sub){
@@ -141,7 +141,7 @@ class Swift_Document {
 		$linktags = $bodynode->getElementsByTagName('link');
 		
 		foreach($linktags AS $target_node){
-			if($target_node->getAttribute('rel') != 'stylesheet') break;
+			if($target_node->getAttribute('rel') != 'stylesheet') continue;
 			# move it to the end of the head tag
 			$headnode->appendChild($target_node);
 		}
@@ -168,7 +168,7 @@ class Swift_Document {
 		
 		foreach($scripttags AS $target_node){
 			
-			if(!$target_node->hasAttribute('defer')) break;
+			if(!$target_node->hasAttribute('defer')) continue;
 			# move it to the end of the body tag
 			$tagstomove[] = $target_node;
 			
@@ -199,10 +199,10 @@ class Swift_Document {
 			$src = (string)$target_node->getAttribute($attributename);
 			
 			# skip inline targets or ones without swift modules source files
-			if(empty($src) || strpos($src,'swift://') !== 0) break; 
+			if(empty($src) || strpos($src,'swift://') !== 0) continue; 
 			
 			if(!empty($filterattribute)) {
-				if($target_node->getAttribute($filterattribute) != $filtervalue) break;
+				if($target_node->getAttribute($filterattribute) != $filtervalue) continue;
 			}
 			
 			$modulename = substr($src,8);
@@ -248,10 +248,10 @@ class Swift_Document {
 			$src = (string)$target_node->getAttribute($attributename);
 			
 			# skip targets that are already inline or ones without swift modules source files
-			if(empty($src) || strpos($src,'swift://') !== 0 || substr($src,-7) !== '#inline') break; 
+			if(empty($src) || strpos($src,'swift://') !== 0 || substr($src,-7) !== '#inline') continue; 
 			
 			if(!empty($filterattribute)) {
-				if($target_node->getAttribute($filterattribute) != $filtervalue) break;
+				if($target_node->getAttribute($filterattribute) != $filtervalue) continue;
 			}
 			
 			$modulename = substr(substr($src,8),0,-7);
@@ -292,7 +292,7 @@ class Swift_Document {
 			
 			$modulename = (string)$target_node->getAttribute('id');
 			
-			if(empty($modulename) || empty($this->_config['modules'][$modulename]['serve_externally'])) break;
+			if(empty($modulename) || empty($this->_config['modules'][$modulename]['serve_externally'])) continue;
 			
 			$content = trim($target_node->nodeValue);
 			
