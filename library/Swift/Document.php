@@ -76,7 +76,15 @@ class Swift_Document {
 	private function loadDependencies(){
 		$targettags = $this->_domdocument->getElementsByTagName('script');
 		
+		$removeelements = array();
+		
+		# copy targets into a new array to prevent iterating over newly added nodes
+		$targetnodes = array();
 		foreach($targettags AS $target_node){
+			$targetnodes[] = $target_node;
+		}
+		
+		foreach($targetnodes AS $target_node){
 			
 			$src = (string)$target_node->getAttribute('src');
 			# skip inline targets or ones without swift modules source files
@@ -84,18 +92,31 @@ class Swift_Document {
 			
 			$modulename = substr($src,8);
 			
-			$requirements = $this->getDependencyNames($modulename);
+			# if this module has been loaded already 
+
+			if(in_array($modulename,$this->_used_libraries)) {
+				# if a module has already been loaded further up the page, remove the node so that it's not loaded again
+				$target_node->parentNode->removeChild($target_node);
+				
+			} else {
+				
+				# load requirements from a list of dependent modules
+				
+				$requirements = $this->getDependencyNames($modulename);
 			
-			foreach($requirements AS $required_module){
+				foreach($requirements AS $required_module){
 				
-				$new_node = $this->_domdocument->createElement('script');
+					$new_node = $this->_domdocument->createElement('script');
 				
-				$new_node->setAttribute('src','swift://'.$required_module);
+					$new_node->setAttribute('src','swift://'.$required_module);
 								
-				$target_node->parentNode->insertBefore($new_node,$target_node);
-			}
+					$target_node->parentNode->insertBefore($new_node,$target_node);
+				}
 			
+				$this->_used_libraries[] = $modulename;
+			}	
 		}
+		
 	}
 	
 	private function getDependencyNames($modulename){
