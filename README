@@ -19,22 +19,23 @@ To load an external linked script inline set the 'src' attribute to a value in t
 
 Script deferment
 
-When JavaScript is running it blocks anything else happening in the browser, so it makes sense to execute scripts as late as possible. Internet Explorer supports the 'defer' attribute for script tags which stops the script from executing after the page has loaded. Unfortunately 'defer' isn't supported in other browsers, so Swift emulates the behavior by moving deferred script tags to the bottom of the page.
+When JavaScript is running it blocks anything else happening in the browser, so it makes sense to execute scripts as late as possible. Internet Explorer supports the 'defer' attribute for script tags which stops the script from executing after the page has loaded. Unfortunately 'defer' isn't supported in other browsers, so Swift emulates the behaviour by moving deferred script tags to the bottom of the page.
 
 To defer a script add a 'defer' attribute.
  
 Dependency management
 It can be hard to manage dependencies for scripts which rely on JavaScript with modular libraries and custom extensions. It can sometimes be tempting just to include the kitchen sink on every page load, especially given the desire to reduce the number of HTTP connections to a minimum. Although it is easier to put everything needed by the site in the header of the default template, but this can lead to an very large initial load on the first page of the site, and unnecessarily large memory and parsing overhead for scripts that a browser may not ever use. Swift allows you to configure dependencies for each of the scripts you use so that they are automatically added to the page when needed and only when needed. Some JavaScript libraries can manage these dependencies but it can be inflexible and non-library modules can be difficult to include in the same scheme as native ones. Swift can automate dependencies to optimise with the whole site in mind rather than just one page.
 
-Swift uses a config array which contains the names and dependencies for all of the scripts in a site. When Swift encounters referrences to any of the scripts it automatically adds the dependencies. To add dependencies to an inline script add a 'requires' attribute with a comma separated list of the modules you need to load.
+Swift uses a config array which contains the names and dependencies for all of the scripts in a site. When Swift encounters references to any of the scripts it automatically adds the dependencies. To add dependencies to an inline script add a 'requires' attribute with a comma separated list of the modules you need to load.
 
 
 CSS promotion
 
-If CSS code is specific to a given template it can be useful to include the code inline, alongside the code that uses it. CSS works best when it included in the HEAD of an HTML file because the browser user will render the page correctly as soon as possible. If CSS is used in several URLs then it can be moved to a linked files that can be cached and shared between page loads.
-
+If CSS code is specific to a given template it can be useful to include the code inline, alongside the code that uses it. CSS works best when it included in the HEAD of an HTML file because the browser user will render the page correctly as soon as possible. If CSS is used in several URLs then it can be moved to linked files that can be cached and shared between page loads.
 
 To move inline CSS to an external file give it an 'id' attribute and register that id as inline in the config. The id must be unique in your templates. All CSS is automatically moved to the top HEAD of the document.
+
+Please note that since the HTML specification doesn't allow style or link tags in the body of a page this is the one swift function that causes you to have non-valid HTML in your templates. 
 
 
 Minify
@@ -42,7 +43,7 @@ Minify
 Swift leverages Minify to combine and compress JavaScript and css files to reduce the number of HTTP connections a page makes and make each download as small as possible. In order to decide which files to combine and which ones to leave separate if uses a tweakable configuration - it combines by default, but if many URLs use the same base library with small page specific additional files it can mean the the library code is downloaded by the client multiple times. Swift can specify that certain script always be loaded together and that other groups of scripts only ever loaded individually. 
 
 
-Swift automatically combines consequtive external script and style tags into a single call to the Minify script according to the config.
+Swift automatically combines consecutive external script and style tags into a single call to the Minify script according to the config.
 
 
 Debug mode
