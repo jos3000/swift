@@ -218,11 +218,14 @@ class Swift_Document {
 
 			$src = (string)$target_node->getAttribute($attributename);
 			
-			# skip inline targets or ones without swift modules source files
-			if(empty($src) || strpos($src,'swift://') !== 0) continue; 
-			
 			if(!empty($filterattribute)) {
 				if($target_node->getAttribute($filterattribute) != $filtervalue) continue;
+			}
+			
+			# skip inline targets or ones without swift modules source files
+			if(empty($src) || strpos($src,'swift://') !== 0) {
+				$combine_node = false;
+				continue; 
 			}
 			
 			$modulename = substr($src,8);
