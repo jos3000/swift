@@ -103,14 +103,19 @@ class Swift_Document {
 				# load requirements from a list of dependent modules
 				
 				$requirements = $this->getDependencyNames($modulename);
-			
+				
 				foreach($requirements AS $required_module){
+					if(!in_array($required_module,$this->_used_libraries)) {
+						# if we haven't already put it in the page add it before this node
+						
+						$new_node = $this->_domdocument->createElement('script');
 				
-					$new_node = $this->_domdocument->createElement('script');
-				
-					$new_node->setAttribute('src','swift://'.$required_module);
+						$new_node->setAttribute('src','swift://'.$required_module);
 								
-					$target_node->parentNode->insertBefore($new_node,$target_node);
+						$target_node->parentNode->insertBefore($new_node,$target_node);
+						
+						$this->_used_libraries[] = $required_module;
+					}
 				}
 			
 				$this->_used_libraries[] = $modulename;
@@ -129,21 +134,15 @@ class Swift_Document {
 			
 			foreach($this->_config['modules'][$modulename]['requires'] AS $req){
 				
-				# don't require a library more than once - since we process in order we will already have 
-				if(in_array($req,$this->_used_libraries)) continue;
-				
 				$sub_dependencies = $this->getDependencyNames($req);
+				
 				foreach($sub_dependencies AS $sub){
-					if(!in_array($sub,$this->_used_libraries)) {
-						$requires[] = $sub;
-						$this->_used_libraries[] = $sub;
-					}
+					$requires[] = $sub;
 				}
 				
-				$requires[] = $req;
-				$this->_used_libraries[] = $req;
+				$requires[] = $req;				
 			}
-			
+
 			return $requires;
 		}
 
