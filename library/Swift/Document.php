@@ -212,6 +212,8 @@ class Swift_Document {
 
 		$combine_node = false;
 		
+		$combine_group = false;
+		
 		$removeelements = array();
 		
 		foreach($targettags AS $target_node){
@@ -230,8 +232,20 @@ class Swift_Document {
 			
 			$modulename = substr($src,8);
 			
+			# stop combining if the group of the current module is not the same as the previous
+			if(!empty($this->_config['modules'][$modulename]['group'])){
+				$current_group = $this->_config['modules'][$modulename]['group'];
+			} else {
+				$current_group = false;
+			}
+			
+			if($combine_group != $current_group){
+				$combine_node = false;
+			}
+			
 			if(empty($combine_node)) {
 				$combine_node = $target_node;
+				$combine_group = $current_group;
 				$combine_node->setAttribute($attributename,$this->_config['swift_url'].$this->_config['version_number'].$this->seperator.$modulename);
 			} else {
 				$removeelements[] = $target_node;

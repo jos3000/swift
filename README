@@ -40,7 +40,7 @@ Please note that since the HTML specification doesn't allow style or link tags i
 
 Minify
 
-Swift leverages Minify to combine and compress JavaScript and css files to reduce the number of HTTP connections a page makes and make each download as small as possible. In order to decide which files to combine and which ones to leave separate if uses a tweakable configuration - it combines by default, but if many URLs use the same base library with small page specific additional files it can mean the the library code is downloaded by the client multiple times. Swift can specify that certain script always be loaded together and that other groups of scripts only ever loaded individually. 
+Swift leverages Minify to combine and compress JavaScript and css files to reduce the number of HTTP connections a page makes and make each download as small as possible. In order to decide which files to combine and which ones to leave separate if uses a tweakable configuration - it combines by default, but if many URLs use the same base library with small page specific additional files it can mean the the library code is downloaded by the client multiple times. Swift can specify that certain script always be loaded together and that other groups of scripts only ever loaded individually. In order to group modules give them all the same 'group' property in their config.
 
 
 Swift automatically combines consecutive external script and style tags into a single call to the Minify script according to the config.
