@@ -33,9 +33,8 @@ class Swift_Document {
 	
 	public function process(){
 		
-		$this->loadDependencies();
-		
 		$this->deferJS();
+		$this->loadDependencies();
 		$this->promoteCSS();
 		
 		$this->serveJSinline();
@@ -87,10 +86,20 @@ class Swift_Document {
 		foreach($targetnodes AS $target_node){
 			
 			$src = (string)$target_node->getAttribute('src');
-			# skip inline targets or ones without swift modules source files
-			if(empty($src) || strpos($src,'swift://') !== 0) continue; 
+			$id = (string)$target_node->getAttribute('id');
 			
-			$modulename = substr($src,8);
+			# skip inline targets or ones without swift modules source files
+			if(empty($src) || strpos($src,'swift://') !== 0) {
+				if(!empty($id) && isset($this->_config['modules'][$id])){
+					$modulename = $id;
+				} else {
+					# no id or swift src - let's move on
+					continue; 
+				}
+			} else {
+				# if a swift src is set, this trumps the id
+				$modulename = substr($src,8);
+			}
 			
 			# if this module has been loaded already 
 
