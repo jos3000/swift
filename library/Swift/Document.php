@@ -72,6 +72,23 @@ class Swift_Document {
 		$this->serveExternally('style');
 	}
 	
+	private function extractModulename($url,$id = false){
+		# if id matches a module name in the config use that
+		
+		if(!empty($id)){
+			if(!empty($this->_config['modules'][$id])) return $id;
+		}
+		
+		if('swift://' === substr($url,0,8)) {
+			$url = substr($url,8); # remove 'swift://'
+			if(strpos($url,'#')) $url = substr($url,0,strpos($url,'#')); # chop of the hash if there is one
+			return $url;
+		}
+		
+		return false;
+
+	}
+	
 	private function loadDependencies(){
 		$targettags = $this->_domdocument->getElementsByTagName('script');
 		
@@ -88,17 +105,12 @@ class Swift_Document {
 			$src = (string)$target_node->getAttribute('src');
 			$id = (string)$target_node->getAttribute('id');
 			
+			$modulename = $this->extractModulename($src,$id);
+			
 			# skip inline targets or ones without swift modules source files
-			if(empty($src) || strpos($src,'swift://') !== 0) {
-				if(!empty($id) && isset($this->_config['modules'][$id])){
-					$modulename = $id;
-				} else {
-					# no id or swift src - let's move on
-					continue; 
-				}
-			} else {
-				# if a swift src is set, this trumps the id
-				$modulename = substr($src,8);
+			if(!$modulename) {
+				# no module - let's move on
+				continue;
 			}
 			
 			# if this module has been loaded already 
@@ -233,13 +245,13 @@ class Swift_Document {
 				if($target_node->getAttribute($filterattribute) != $filtervalue) continue;
 			}
 			
+			$modulename = $this->extractModulename($src);
+			
 			# skip inline targets or ones without swift modules source files
-			if(empty($src) || strpos($src,'swift://') !== 0) {
+			if(!$modulename) {
 				$combine_node = false;
 				continue; 
 			}
-			
-			$modulename = substr($src,8);
 			
 			# stop combining if the group of the current module is not the same as the previous
 			if(!empty($this->_config['modules'][$modulename]['group'])){
@@ -336,7 +348,7 @@ class Swift_Document {
 		
 		foreach($targettags AS $target_node){
 			
-			$modulename = (string)$target_node->getAttribute('id');
+			$modulename = $this->extractModulename(false,(string)$target_node->getAttribute('id'));
 			
 			if(empty($modulename) || empty($this->_config['modules'][$modulename]['serve_externally'])) continue;
 			
